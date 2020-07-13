@@ -9,12 +9,22 @@ angular.module('flapperNews', [])
                 { title: 'post 4', upvotes: 9 },
                 { title: 'post 5', upvotes: 4 }
             ];
+
             $scope.addPost = function () {
                 //    if post title is blank, it won't let you post
                 if (!$scope.title || $scope.title === '') { return; }
                 //    if it isn't blank, the post will push
-                $scope.posts.push({ title: $scope.title, upvotes: 0 });
+                $scope.posts.push({ 
+                    title: $scope.title, 
+                    link: $scope.link,
+                    upvotes: 0 
+                });
                 $scope.title = '';
+                $scope.link = '';
+            }
+
+            $scope.incrementUpvotes = function (post) {
+                post.upvotes += 1;
             }
         }
     ]);
