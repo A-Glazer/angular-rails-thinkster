@@ -1,7 +1,41 @@
-angular.module('flapperNews', [])
+angular.module('flapperNews', ['ui.router'])
+    .config([
+        '$stateProvider',
+        '$urlRouterProvider',
+
+        function ($stateProvider, $urlRouterProvider) {
+            // state should be controlled by MainCtrl. If the url is not defined, the url will be "otherwise"
+            $stateProvider
+                .state('home', {
+                    url: '/home',
+                    templateUrl: '/home.html',
+                    controller: 'MainCtrl'
+                });
+
+            $urlRouterProvider.otherwise('home')
+        }
+            .state('posts', {
+                url: '/posts/{id}',
+                templateUrl: '/posts.html',
+                controller: 'PostsCtrl'
+            })
+    ])
+
+    .factory('posts', [function () {
+        // service body
+        var o = {
+            posts: []
+        };
+        return o;
+    }])
+
     .controller('MainCtrl', [
         '$scope',
-        function ($scope) {
+        'posts',
+        function ($scope, posts) {
+            // now posts will update in the array every time $scope.posts is updated
+            $scope.posts = posts.posts;
+
             $scope.posts = [
                 { title: 'post 1', upvotes: 5 },
                 { title: 'post 2', upvotes: 2 },
@@ -14,10 +48,14 @@ angular.module('flapperNews', [])
                 //    if post title is blank, it won't let you post
                 if (!$scope.title || $scope.title === '') { return; }
                 //    if it isn't blank, the post will push
-                $scope.posts.push({ 
-                    title: $scope.title, 
+                $scope.posts.push({
+                    title: $scope.title,
                     link: $scope.link,
-                    upvotes: 0 
+                    upvotes: 0,
+                    comments: [
+                        { author: 'Joe', body: 'Cool post!', upvotes: 0 },
+                        { author: 'Bob', body: 'Great idea but everything is wrong!', upvotes: 0 }
+                    ]
                 });
                 $scope.title = '';
                 $scope.link = '';
@@ -27,5 +65,25 @@ angular.module('flapperNews', [])
                 post.upvotes += 1;
             }
         }
-    ]);
 
+
+            .controller('PostCtrl', [
+                '$scope',
+                '$stateParams',
+                'posts',
+                function ($scope, $stateParams, posts) {
+                    $scope.post = posts.posts[$stateParams.id]
+
+                    $scope.addComment = function(){
+                        if($scope.body === '') {return;}
+                        $scope.post.comments.push({
+                            body: $scope.body,
+                            author: 'user',
+                            upvotes: 0
+                        });
+                        $scope.body = '';
+                    }
+                }
+            ])
+
+    ]);
